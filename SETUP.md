@@ -1,15 +1,106 @@
-# AI Interviewer App - Setup Guide
+# AI Interviewer Platform - Setup Guide
 
-## 🚀 Quick Start
+> **Complete setup guide for both technical and non-technical users**
 
-### Prerequisites
+## 🎯 What You'll Get
 
-- **Node.js** 18+ and npm
-- **Python** 3.11+
-- **PostgreSQL** 15+
-- **Docker** (optional, for containerized setup)
-- **OpenAI API Key**
-- **Pinecone API Key** (for vector storage)
+After completing this setup, you'll have:
+- **AI Interviewer Platform** running on your computer
+- **AI Avatar** that can conduct interviews with voice
+- **Resume Analysis** that generates personalized questions
+- **Real-time Scoring** with detailed feedback
+- **PDF Reports** for interview results
+
+## 📋 Prerequisites
+
+### Required Software
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Python** 3.11+ ([Download](https://python.org/))
+- **PostgreSQL** 15+ ([Download](https://postgresql.org/))
+- **Git** ([Download](https://git-scm.com/))
+
+### Required Accounts
+- **OpenAI Account** ([Sign up](https://platform.openai.com/))
+- **Pinecone Account** ([Sign up](https://pinecone.io/))
+
+### System Requirements
+- **RAM**: 8GB minimum, 16GB recommended
+- **Storage**: 2GB free space
+- **Internet**: Stable connection for AI services
+
+## 🚀 Quick Setup (Recommended)
+
+### Step 1: Get the Code
+```bash
+# Download the project
+git clone <repository-url>
+cd AI-Interviewer
+```
+
+### Step 2: Install Dependencies
+```bash
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
+
+# Install frontend dependencies
+cd ../frontend
+npm install
+```
+
+### Step 3: Setup Database
+```bash
+# Start PostgreSQL using Docker (easiest method)
+docker run --name ai-interviewer-db \
+  -e POSTGRES_DB=ai_interviewer \
+  -e POSTGRES_USER=user \
+  -e POSTGRES_PASSWORD=password \
+  -p 5432:5432 \
+  -d postgres:15
+```
+
+### Step 4: Configure Environment
+```bash
+# Backend configuration
+cd backend
+cp env.example .env
+```
+
+Edit `backend/.env`:
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/ai_interviewer
+OPENAI_API_KEY=your_openai_api_key_here
+PINECONE_API_KEY=your_pinecone_api_key_here
+SECRET_KEY=your-secret-key-here
+```
+
+```bash
+# Frontend configuration
+cd ../frontend
+cp .env.example .env.local
+```
+
+Edit `frontend/.env.local`:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+### Step 5: Start the Application
+```bash
+# Terminal 1: Start backend
+cd backend
+uvicorn main:app --reload
+
+# Terminal 2: Start frontend
+cd frontend
+npm run dev
+```
+
+### Step 6: Access the Application
+- **Main Application**: http://localhost:3000
+- **API Documentation**: http://localhost:8000/docs
+
+## 🔧 Detailed Setup Guide
 
 ### 1. Environment Setup
 
@@ -19,12 +110,21 @@ cd backend
 cp env.example .env
 ```
 
-Edit `.env` with your credentials:
+**Required Environment Variables:**
 ```env
-DATABASE_URL=postgresql://user:password@localhost/ai_interviewer
-OPENAI_API_KEY=your_openai_api_key_here
-PINECONE_API_KEY=your_pinecone_api_key_here
-SECRET_KEY=your-secret-key-here
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/ai_interviewer
+
+# AI Services
+OPENAI_API_KEY=sk-your-openai-api-key
+PINECONE_API_KEY=your-pinecone-api-key
+
+# Security
+SECRET_KEY=your-random-secret-key-here
+
+# Optional
+DEBUG=true
+ALLOWED_ORIGINS=["http://localhost:3000"]
 ```
 
 #### Frontend Environment
@@ -33,32 +133,40 @@ cd frontend
 cp .env.example .env.local
 ```
 
-Edit `.env.local`:
+**Required Environment Variables:**
 ```env
+# Backend API URL
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
 ### 2. Database Setup
 
-#### Option A: Local PostgreSQL
+#### Option A: Docker (Recommended)
 ```bash
-# Install PostgreSQL
-# macOS: brew install postgresql
-# Ubuntu: sudo apt-get install postgresql
-
-# Create database
-createdb ai_interviewer
-```
-
-#### Option B: Docker (Recommended)
-```bash
-# Start PostgreSQL with Docker
+# Start PostgreSQL container
 docker run --name ai-interviewer-db \
   -e POSTGRES_DB=ai_interviewer \
   -e POSTGRES_USER=user \
   -e POSTGRES_PASSWORD=password \
   -p 5432:5432 \
   -d postgres:15
+
+# Verify database is running
+docker ps
+```
+
+#### Option B: Local Installation
+```bash
+# macOS
+brew install postgresql
+brew services start postgresql
+
+# Ubuntu/Debian
+sudo apt-get install postgresql postgresql-contrib
+sudo systemctl start postgresql
+
+# Create database
+createdb ai_interviewer
 ```
 
 ### 3. Backend Setup
@@ -66,7 +174,7 @@ docker run --name ai-interviewer-db \
 ```bash
 cd backend
 
-# Create virtual environment
+# Create virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
@@ -77,10 +185,10 @@ pip install -r requirements.txt
 python -c "from app.database import init_db; import asyncio; asyncio.run(init_db())"
 
 # Start backend server
-uvicorn main:app --reload
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Backend will be available at: http://localhost:8000
+**Backend will be available at:** http://localhost:8000
 
 ### 4. Frontend Setup
 
@@ -94,71 +202,51 @@ npm install
 npm run dev
 ```
 
-Frontend will be available at: http://localhost:3000
+**Frontend will be available at:** http://localhost:3000
 
-### 5. Full Stack with Docker
+### 5. Verify Installation
 
+#### Check Backend
 ```bash
-# Start all services
-docker-compose up -d
+# Test API health
+curl http://localhost:8000/health
 
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
+# Check API documentation
+open http://localhost:8000/docs
 ```
 
-## 🏗️ Architecture Overview
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   AI Services   │
-│   (Next.js)     │◄──►│   (FastAPI)     │◄──►│   (OpenAI)      │
-│                 │    │                 │    │                 │
-│ • WebRTC        │    │ • REST API      │    │ • GPT-4o        │
-│ • Voice/Text    │    │ • WebSocket     │    │ • Whisper       │
-│ • Real-time UI  │    │ • Auth          │    │ • Embeddings    │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Database      │    │   Vector DB     │    │   File Storage  │
-│   (PostgreSQL)  │    │   (Pinecone)    │    │   (Local/S3)    │
-│                 │    │                 │    │                 │
-│ • Users         │    │ • Resume Embed  │    │ • Resumes       │
-│ • Interviews    │    │ • Q&A Context   │    │ • Audio Files   │
-│ • Scores        │    │ • Memory        │    │ • Reports       │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+#### Check Frontend
+```bash
+# Open application
+open http://localhost:3000
 ```
 
-## 📋 Key Features Implemented
+## 🎮 First-Time Usage
 
-### ✅ Completed
-- **Backend API**: FastAPI with authentication, CRUD operations
-- **Database Models**: User, Candidate, Interview, Question, Response, Score
-- **AI Integration**: OpenAI GPT-4o and Whisper integration
-- **Vector Storage**: Pinecone for resume embeddings and context
-- **WebSocket**: Real-time interview communication
-- **Frontend**: Next.js with modern UI components
-- **Authentication**: JWT-based auth system
+### 1. Create Admin Account
+1. Go to http://localhost:3000/register
+2. Fill in your details
+3. Click "Register"
 
-### 🚧 In Progress
-- **Real-time Transcription**: WebRTC audio processing
-- **AI Scoring**: Automated response evaluation
-- **PDF Reports**: Interview report generation
+### 2. Create Your First Candidate
+1. Go to "Candidates" → "Add New Candidate"
+2. Upload a resume (PDF format)
+3. Fill in candidate details
+4. Click "Create Candidate"
 
-### 📝 Next Steps
-- **WebRTC Integration**: Real-time audio/video
-- **Advanced AI Features**: Context-aware questioning
-- **Testing**: Unit and integration tests
-- **Deployment**: Production setup
+### 3. Start Your First Interview
+1. Go to "Interviews" → "Create New Interview"
+2. Select the candidate
+3. Choose interview settings
+4. Click "Start Interview"
+5. Watch the AI avatar conduct the interview!
 
 ## 🔧 Development Commands
 
-### Backend
+### Backend Development
 ```bash
+cd backend
+
 # Run with auto-reload
 uvicorn main:app --reload
 
@@ -173,12 +261,14 @@ isort .
 alembic upgrade head
 ```
 
-### Frontend
+### Frontend Development
 ```bash
-# Development
+cd frontend
+
+# Development server
 npm run dev
 
-# Build
+# Build for production
 npm run build
 
 # Type checking
@@ -188,41 +278,96 @@ npm run type-check
 npm run lint
 ```
 
-## 🌐 API Endpoints
+## 🐛 Troubleshooting
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/me` - Get current user
+### Common Issues and Solutions
 
-### Candidates
-- `GET /api/candidates` - List candidates
-- `POST /api/candidates` - Create candidate
-- `GET /api/candidates/{id}` - Get candidate
-- `PUT /api/candidates/{id}` - Update candidate
-- `POST /api/candidates/{id}/upload-resume` - Upload resume
+#### 1. Database Connection Error
+**Error:** `Connection refused to database`
+**Solution:**
+```bash
+# Check if PostgreSQL is running
+docker ps | grep postgres
 
-### Interviews
-- `GET /api/interviews` - List interviews
-- `POST /api/interviews` - Create interview
-- `GET /api/interviews/{id}` - Get interview
-- `POST /api/interviews/{id}/start` - Start interview
-- `POST /api/interviews/{id}/complete` - Complete interview
-- `GET /api/interviews/{id}/report` - Get interview report
+# If not running, start it
+docker start ai-interviewer-db
 
-### AI Services
-- `POST /api/ai/analyze-resume` - Analyze resume
-- `POST /api/ai/generate-questions` - Generate questions
-- `POST /api/ai/analyze-response` - Analyze response
-- `POST /api/ai/transcribe-audio` - Transcribe audio
-- `POST /api/ai/generate-feedback` - Generate feedback
+# Check connection
+pg_isready -h localhost -p 5432
+```
 
-### WebSocket
-- `WS /ws/interview/{interview_id}` - Real-time interview communication
+#### 2. OpenAI API Error
+**Error:** `Invalid API key`
+**Solution:**
+```bash
+# Check API key in .env file
+cat backend/.env | grep OPENAI_API_KEY
+
+# Test API key
+curl -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models
+```
+
+#### 3. Frontend Build Error
+**Error:** `Module not found`
+**Solution:**
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### 4. Port Already in Use
+**Error:** `Port 3000/8000 already in use`
+**Solution:**
+```bash
+# Find process using port
+lsof -i :3000
+lsof -i :8000
+
+# Kill process
+kill -9 <PID>
+
+# Or use different ports
+npm run dev -- -p 3001
+uvicorn main:app --reload --port 8001
+```
+
+#### 5. Python Virtual Environment Issues
+**Error:** `Module not found`
+**Solution:**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Logs and Debugging
+
+#### Backend Logs
+```bash
+# View backend logs
+cd backend
+uvicorn main:app --reload --log-level debug
+```
+
+#### Frontend Logs
+```bash
+# View frontend logs
+cd frontend
+npm run dev
+# Check browser console for errors
+```
+
+#### Database Logs
+```bash
+# View PostgreSQL logs
+docker logs ai-interviewer-db
+```
 
 ## 🚀 Production Deployment
 
-### Environment Variables
+### Environment Variables for Production
 ```env
 # Production settings
 DEBUG=false
@@ -233,7 +378,7 @@ SECRET_KEY=your_production_secret_key
 ALLOWED_ORIGINS=["https://your-domain.com"]
 ```
 
-### Docker Production
+### Docker Production Setup
 ```bash
 # Build production images
 docker-compose -f docker-compose.prod.yml build
@@ -242,101 +387,101 @@ docker-compose -f docker-compose.prod.yml build
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-## 📊 Monitoring & Analytics
+## 📊 Performance Optimization
 
-- **Database**: PostgreSQL performance monitoring
-- **AI Usage**: OpenAI API usage tracking
-- **Vector DB**: Pinecone query performance
-- **WebSocket**: Real-time connection monitoring
-
-## 🔒 Security Considerations
-
-- **Authentication**: JWT tokens with expiration
-- **CORS**: Configured for specific origins
-- **File Uploads**: Size limits and type validation
-- **API Rate Limiting**: Implement rate limiting
-- **Data Encryption**: Sensitive data encryption
-
-## 🧪 Testing
-
-### Backend Tests
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=app
-
-# Run specific test file
-pytest tests/test_interviews.py
+### Database Optimization
+```sql
+-- Add indexes for better performance
+CREATE INDEX idx_interviews_candidate_id ON interviews(candidate_id);
+CREATE INDEX idx_responses_interview_id ON responses(interview_id);
 ```
 
-### Frontend Tests
+### Caching Setup
 ```bash
-# Run tests
-npm test
-
-# Run with coverage
-npm run test:coverage
+# Install Redis for caching
+docker run --name redis -p 6379:6379 -d redis:alpine
 ```
 
-## 📈 Performance Optimization
-
-- **Database**: Indexing and query optimization
-- **Caching**: Redis for session management
-- **CDN**: Static asset delivery
-- **AI**: Response caching and optimization
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection**
-   ```bash
-   # Check PostgreSQL status
-   pg_isready -h localhost -p 5432
-   ```
-
-2. **OpenAI API**
-   ```bash
-   # Test API key
-   curl -H "Authorization: Bearer $OPENAI_API_KEY" https://api.openai.com/v1/models
-   ```
-
-3. **Pinecone Connection**
-   ```bash
-   # Test Pinecone
-   python -c "import pinecone; print('Pinecone connected')"
-   ```
-
-### Logs
+### CDN Configuration
 ```bash
-# Backend logs
-docker-compose logs backend
-
-# Frontend logs
-docker-compose logs frontend
-
-# Database logs
-docker-compose logs postgres
+# Configure CDN for static assets
+# Update next.config.js for CDN URLs
 ```
+
+## 🔒 Security Configuration
+
+### SSL/HTTPS Setup
+```bash
+# Generate SSL certificates
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+```
+
+### Environment Security
+```bash
+# Use strong secret keys
+openssl rand -hex 32
+
+# Rotate API keys regularly
+# Use environment-specific configurations
+```
+
+## 📈 Monitoring and Analytics
+
+### Application Monitoring
+```bash
+# Install monitoring tools
+pip install prometheus-client
+npm install @sentry/nextjs
+```
+
+### Database Monitoring
+```bash
+# Monitor database performance
+docker exec -it ai-interviewer-db psql -U user -d ai_interviewer -c "SELECT * FROM pg_stat_activity;"
+```
+
+## 🤝 Getting Help
+
+### Documentation
+- **API Documentation**: http://localhost:8000/docs
+- **Frontend Components**: Check `/components` directory
+- **Backend Services**: Check `/services` directory
+
+### Community Support
+- **GitHub Issues**: Create an issue for bugs
+- **Discussions**: Use GitHub discussions for questions
+- **Wiki**: Check project wiki for detailed guides
+
+### Professional Support
+- **Enterprise Support**: Contact for commercial support
+- **Custom Development**: Available for custom features
+- **Training**: Available for team training
 
 ## 📚 Additional Resources
 
+### Learning Resources
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [OpenAI API Documentation](https://platform.openai.com/docs)
-- [Pinecone Documentation](https://docs.pinecone.io/)
-- [WebRTC Documentation](https://webrtc.org/getting-started/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 
-## 🤝 Contributing
+### Tools and Extensions
+- **VS Code Extensions**: Python, TypeScript, Tailwind CSS
+- **Browser Extensions**: React Developer Tools
+- **Database Tools**: pgAdmin, DBeaver
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+## 🎉 Congratulations!
 
-## 📄 License
+You've successfully set up the AI Interviewer Platform! 
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+**Next Steps:**
+1. Create your first candidate
+2. Start your first interview
+3. Explore the AI avatar features
+4. Generate your first report
+
+**Happy Interviewing! 🎤🤖**
+
+---
+
+**Need Help?** Check the troubleshooting section or create an issue in the repository.
