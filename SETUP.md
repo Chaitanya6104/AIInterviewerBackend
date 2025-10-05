@@ -89,7 +89,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 ```bash
 # Terminal 1: Start backend
 cd backend
-uvicorn main:app --reload
+python main.py
 
 # Terminal 2: Start frontend
 cd frontend
@@ -223,7 +223,7 @@ open http://localhost:3000
 
 ## 🎮 First-Time Usage
 
-### 1. Create Admin Account
+### 1. Create Account
 1. Go to http://localhost:3000/register
 2. Fill in your details
 3. Click "Register"
@@ -249,16 +249,8 @@ cd backend
 
 # Run with auto-reload
 uvicorn main:app --reload
-
-# Run tests
-pytest
-
-# Format code
-black .
-isort .
-
-# Database migrations
-alembic upgrade head
+or
+python main.py 
 ```
 
 ### Frontend Development
@@ -396,66 +388,12 @@ CREATE INDEX idx_interviews_candidate_id ON interviews(candidate_id);
 CREATE INDEX idx_responses_interview_id ON responses(interview_id);
 ```
 
-### Caching Setup
-```bash
-# Install Redis for caching
-docker run --name redis -p 6379:6379 -d redis:alpine
-```
-
-### CDN Configuration
-```bash
-# Configure CDN for static assets
-# Update next.config.js for CDN URLs
-```
-
-## 🔒 Security Configuration
-
-### SSL/HTTPS Setup
-```bash
-# Generate SSL certificates
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
-```
-
-### Environment Security
-```bash
-# Use strong secret keys
-openssl rand -hex 32
-
-# Rotate API keys regularly
-# Use environment-specific configurations
-```
-
-## 📈 Monitoring and Analytics
-
-### Application Monitoring
-```bash
-# Install monitoring tools
-pip install prometheus-client
-npm install @sentry/nextjs
-```
-
-### Database Monitoring
-```bash
-# Monitor database performance
-docker exec -it ai-interviewer-db psql -U user -d ai_interviewer -c "SELECT * FROM pg_stat_activity;"
-```
-
 ## 🤝 Getting Help
 
 ### Documentation
 - **API Documentation**: http://localhost:8000/docs
 - **Frontend Components**: Check `/components` directory
 - **Backend Services**: Check `/services` directory
-
-### Community Support
-- **GitHub Issues**: Create an issue for bugs
-- **Discussions**: Use GitHub discussions for questions
-- **Wiki**: Check project wiki for detailed guides
-
-### Professional Support
-- **Enterprise Support**: Contact for commercial support
-- **Custom Development**: Available for custom features
-- **Training**: Available for team training
 
 ## 📚 Additional Resources
 
@@ -481,7 +419,3 @@ You've successfully set up the AI Interviewer Platform!
 4. Generate your first report
 
 **Happy Interviewing! 🎤🤖**
-
----
-
-**Need Help?** Check the troubleshooting section or create an issue in the repository.
