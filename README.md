@@ -54,21 +54,22 @@ A full-stack web application featuring:
 │   Frontend      │    │   Backend       │    │   AI Services   │
 │   (Next.js)     │◄──►│   (FastAPI)     │◄──►│   (OpenAI)      │
 │                 │    │                 │    │                 │
-│ • AI Avatar     │    │ • REST API      │    │ • GPT-4o        │
-│ • Voice/Text    │    │ • WebSocket     │    │ • Whisper       │
-│ • Real-time UI  │    │ • Authentication│    │ • Text-to-Speech│
+│ • React UI      │    │ • REST API      │    │ • GPT-4o        │
+│ • Voice/Text    │    │ • WebSocket     │    │ • Whisper (STT) │
+│ • Real-time UI  │    │ • Auth          │    │ • gTTS (TTS)    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Database      │    │   Vector DB     │    │   File Storage  │
-│   (PostgreSQL)  │    │   (Pinecone)    │    │   (Local)       │
-│                 │    │                 │    │                 │
-│ • Users         │    │ • Resume Embed  │    │ • Resumes       │
-│ • Interviews    │    │ • Q&A Context   │    │ • Audio Files   │
-│ • Scores        │    │ • Memory        │    │ • Reports       │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       
+         │                       │                       
+         ▼                       ▼                       
+┌─────────────────┐    ┌─────────────────┐
+│   Database      │    │   Vector DB     │
+│   (PostgreSQL)  │    │   (Pinecone)    │
+│                 │    │                 │
+│ • Users         │    │ • Resume Embed  │
+│ • Interviews    │    │ • Q&A Context   │
+│ • Scores        │    │ • Memory        │
+│ • File URLs     │    │                 │
+└─────────────────┘    └─────────────────┘
 ```
 
 ## 🛠️ Technology Stack
@@ -78,7 +79,6 @@ A full-stack web application featuring:
 - **TypeScript**: Type-safe JavaScript
 - **Tailwind CSS**: Utility-first styling
 - **Framer Motion**: Smooth animations
-- **WebRTC**: Real-time audio/video
 
 ### Backend (Server & API)
 - **FastAPI**: High-performance Python web framework
@@ -186,20 +186,13 @@ npm run dev
 
 ## 🎮 How to Use
 
-### For Interviewers
+### For Interview
 1. **Register/Login** to the platform
 2. **Create Candidate** profile with resume upload
 3. **Configure Interview** settings (role, difficulty, duration)
 4. **Start Interview** and let AI conduct the session
 5. **Review Results** with detailed scores and feedback
 6. **Export Reports** as PDF for sharing
-
-### For Candidates
-1. **Receive Interview Link** from interviewer
-2. **Join Interview Session** (no registration required)
-3. **Interact with AI Avatar** using voice or text
-4. **Answer Questions** naturally as in a real interview
-5. **Receive Feedback** on performance and areas for improvement
 
 ## 🔧 Development
 
@@ -308,34 +301,3 @@ SECRET_KEY=your_production_secret_key
    rm -rf node_modules package-lock.json
    npm install
    ```
-
-## 📈 Performance Optimization
-
-- **Database Indexing**: Optimized queries
-- **Caching**: Redis for session management
-- **CDN**: Static asset delivery
-- **AI Response Caching**: Reduced API calls
-- **Audio Preloading**: Faster avatar responses
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📞 Support
-
-For technical support or questions:
-- Create an issue in the repository
-- Check the troubleshooting section
-- Review the API documentation at `/docs`
-
----
-
-**Built with ❤️ using Next.js, FastAPI, and OpenAI**
