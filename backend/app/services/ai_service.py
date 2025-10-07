@@ -377,9 +377,33 @@ class AIService:
             
             detailed_scores = []
             
+            # Sort questions by order_in_interview to match with responses
+            sorted_questions = sorted(questions, key=lambda q: q.order_in_interview) if questions else []
+            
             for i, response in enumerate(responses):
+                # Try to match question by ID first, then by order as fallback
                 question = next((q for q in questions if q.id == response.question_id), None)
-                if question:
+                if not question and i < len(sorted_questions):
+                    # Fallback: match by order if ID match fails
+                    question = sorted_questions[i]
+                    print(f"   ⚠️ Response {i+1} question_id={response.question_id} not found, using question by order: {question.id}")
+                
+                # Create a dummy question if none exists (for interviews without stored questions)
+                if not question:
+                    from app.models.question import Question
+                    question = Question(
+                        id=response.question_id,
+                        interview_id=int(interview_id),
+                        content=f"Interview Question {i+1}",
+                        question_type="general",
+                        difficulty="medium",
+                        role_focus=interview.role_focus or "General",
+                        order_in_interview=i+1
+                    )
+                    print(f"   ⚠️ No question found for response {i+1}, created dummy question")
+                
+                # Always process the response (even if we had to create a dummy question)
+                if True:
                     # Get AI analysis from response, or generate it if missing
                     ai_analysis = response.ai_analysis or {}
                     print(f"   🔍 Response {i+1} ai_analysis type: {type(ai_analysis)}")
