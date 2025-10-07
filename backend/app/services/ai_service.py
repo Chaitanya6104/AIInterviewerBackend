@@ -46,6 +46,8 @@ class AIService:
     async def analyze_response(self, interview_id: str, response_text: str, question_context: str = None, role_focus: str = None) -> Dict[str, Any]:
         """Analyze candidate response using GPT-4o with comprehensive scoring"""
         try:
+            print(f"🔍 Analyzing response for interview {interview_id}: '{response_text[:100]}...'")
+            
             # Get interview context for better analysis
             from app.database import get_db
             from app.models.interview import Interview
@@ -122,11 +124,12 @@ class AIService:
             )
             
             analysis_text = response.choices[0].message.content.strip()
-            print(f"🔍 AI Response: {analysis_text}")
+            print(f"🔍 AI Response for '{response_text[:50]}...': {analysis_text[:200]}...")
             
             # Try to parse JSON, with fallback if it fails
             try:
                 analysis = json.loads(analysis_text)
+                print(f"✅ Parsed analysis: overall_score={analysis.get('overall_score')}, technical={analysis.get('technical_accuracy')}, communication={analysis.get('communication_clarity')}")
                 
                 # Validate and normalize the response
                 if 'overall_score' not in analysis:
