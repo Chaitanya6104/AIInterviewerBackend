@@ -382,6 +382,9 @@ class AIService:
                 if question:
                     # Get AI analysis from response, or generate it if missing
                     ai_analysis = response.ai_analysis or {}
+                    print(f"   🔍 Response {i+1} ai_analysis type: {type(ai_analysis)}")
+                    print(f"   🔍 Response {i+1} ai_analysis keys: {list(ai_analysis.keys()) if isinstance(ai_analysis, dict) else 'NOT A DICT'}")
+                    print(f"   🔍 Response {i+1} overall_score: {ai_analysis.get('overall_score') if isinstance(ai_analysis, dict) else 'N/A'}")
                     
                     # If no AI analysis exists, generate it now (but only if we have substantial content)
                     if not ai_analysis or not ai_analysis.get('overall_score'):
