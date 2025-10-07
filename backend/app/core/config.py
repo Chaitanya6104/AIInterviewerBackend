@@ -42,7 +42,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3001",
         "https://ai-interviewer-frontend-9db9.onrender.com",
         "https://ai-interviewer-frontend.onrender.com",
-        "*"  # Temporary: allow all origins for debugging
+        "https://ai-interviewer-frontend-gl33.onrender.com"
     ]
     
     def __init__(self, **kwargs):
