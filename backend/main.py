@@ -43,6 +43,7 @@ app = FastAPI(
 print(f"DEBUG: ALLOWED_ORIGINS = {settings.ALLOWED_ORIGINS}")
 print(f"DEBUG: ALLOWED_ORIGINS type = {type(settings.ALLOWED_ORIGINS)}")
 print(f"DEBUG: Environment ALLOWED_ORIGINS = {os.getenv('ALLOWED_ORIGINS')}")
+print(f"DEBUG: All environment variables with ALLOWED: {[k for k in os.environ.keys() if 'ALLOWED' in k]}")
 print(f"DEBUG: Starting CORS middleware setup")
 app.add_middleware(
     CORSMiddleware,
