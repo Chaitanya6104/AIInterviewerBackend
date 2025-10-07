@@ -1,9 +1,12 @@
 services:
   - type: web
     name: ai-interviewer-backend
-    env: python
+    runtime: python
     plan: starter
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      export CARGO_HOME=/tmp/cargo
+      export PIP_NO_BUILD_ISOLATION=1
+      pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: DATABASE_URL
@@ -36,6 +39,10 @@ services:
         value: "60"
       - key: DEFAULT_QUESTION_COUNT
         value: "10"
+      - key: CARGO_HOME
+        value: "/tmp/cargo"
+      - key: PIP_NO_BUILD_ISOLATION
+        value: "1"
 
 databases:
   - name: ai-interviewer-db
