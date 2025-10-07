@@ -637,6 +637,13 @@ class AIService:
                     analysis = json.loads(json_match.group())
                 else:
                     analysis = json.loads(analysis_text)
+                
+                print(f"✅ Parsed analysis response: {analysis}")
+                print(f"📊 Analysis keys: {list(analysis.keys())}")
+                print(f"📊 Overall score: {analysis.get('overall_score', 'NOT_FOUND')}")
+                print(f"📊 Technical score: {analysis.get('technical_score', 'NOT_FOUND')}")
+                print(f"📊 Communication score: {analysis.get('communication_score', 'NOT_FOUND')}")
+                
             except json.JSONDecodeError as json_error:
                 print(f"❌ JSON parsing error: {json_error}")
                 print(f"Raw response: {analysis_text}")
@@ -683,6 +690,14 @@ class AIService:
                 }
             else:
                 # Create new score record
+                print(f"📊 Creating new Score record with values:")
+                print(f"   - overall_score: {analysis.get('overall_score', 0)}")
+                print(f"   - communication_score: {analysis.get('communication_score', 0)}")
+                print(f"   - technical_score: {analysis.get('technical_score', 0)}")
+                print(f"   - problem_solving_score: {analysis.get('problem_solving_score', 0)}")
+                print(f"   - cultural_fit_score: {analysis.get('cultural_fit_score', 0)}")
+                print(f"   - scores_breakdown: {analysis.get('detailed_scores_breakdown', {})}")
+                
                 new_score = Score(
                     interview_id=int(interview_id),
                     overall_score=analysis.get('overall_score', 0),
@@ -706,6 +721,7 @@ class AIService:
                     }
                 )
                 db.add(new_score)
+                print(f"✅ New Score record created and added to database")
             
             # Store additional analysis data
             interview.notes = json.dumps({

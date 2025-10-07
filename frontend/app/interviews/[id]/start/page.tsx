@@ -123,13 +123,13 @@ export default function StartInterviewPage() {
 
   // Avatar speech effect - speak when question changes
   useEffect(() => {
-    if (currentQuestion && currentQuestion.question) {
+    if (currentQuestion && currentQuestion.question && currentQuestion.question !== avatarText) {
       console.log('Setting avatar text for question:', currentQuestion.question.substring(0, 50) + '...')
       setAvatarText(currentQuestion.question)
       // Start speaking immediately - audio should be preloaded
       setIsAvatarSpeaking(true)
     }
-  }, [currentQuestion])
+  }, [currentQuestion, avatarText])
 
   // Handle avatar speech end
   const handleAvatarSpeechEnd = () => {
