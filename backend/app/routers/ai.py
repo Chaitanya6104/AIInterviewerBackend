@@ -656,26 +656,35 @@ async def test_analysis(
 @router.post("/regenerate-analysis/{interview_id}")
 async def regenerate_analysis(
     interview_id: int,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Regenerate analysis for an existing interview"""
     try:
-        from app.database import get_db
         from app.models.interview import Interview
         
-        db = next(get_db())
+        print(f"🔄 Regenerating analysis for interview {interview_id}")
+        
         interview = db.query(Interview).filter(Interview.id == interview_id).first()
         
         if not interview:
+            print(f"❌ Interview {interview_id} not found")
             raise HTTPException(status_code=404, detail="Interview not found")
+        
+        print(f"✅ Interview found: {interview.title}")
         
         ai_service = AIService()
         
         # Generate comprehensive final analysis
+        print(f"🔄 Starting AI analysis for interview {interview_id}")
         final_analysis = await ai_service.generate_final_analysis(str(interview_id))
+        
+        print(f"✅ AI analysis completed for interview {interview_id}")
         
         # Refresh interview data after analysis
         db.refresh(interview)
+        
+        print(f"📊 Updated scores: overall={interview.overall_score}, breakdown={interview.scores_breakdown}")
         
         return {
             "message": "Analysis regenerated successfully",
@@ -689,6 +698,9 @@ async def regenerate_analysis(
         }
     
     except Exception as e:
+        print(f"❌ Regenerate analysis error for interview {interview_id}: {e}")
+        import traceback
+        print(f"❌ Full traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Analysis regeneration failed: {str(e)}")
 
 @router.post("/generate-adaptive-question")
