@@ -408,7 +408,7 @@ CREATE INDEX idx_responses_interview_id ON responses(interview_id);
 - **Browser Extensions**: React Developer Tools
 - **Database Tools**: pgAdmin, DBeaver
 
-## 🎉 Congratulations!
+##  Congratulations!
 
 You've successfully set up the AI Interviewer Platform! 
 

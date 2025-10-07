@@ -287,12 +287,12 @@ class AIService:
             from app.models.candidate import Candidate
             
             db = next(get_db())
-            interview = db.query(Interview).filter(Interview.id == interview_id).first()
+            interview = db.query(Interview).filter(Interview.id == int(interview_id)).first()
             if not interview:
                 raise Exception(f"Interview {interview_id} not found")
             
-            responses = db.query(Response).filter(Response.interview_id == interview_id).all()
-            questions = db.query(Question).filter(Question.interview_id == interview_id).all()
+            responses = db.query(Response).filter(Response.interview_id == int(interview_id)).all()
+            questions = db.query(Question).filter(Question.interview_id == int(interview_id)).all()
             candidate = db.query(Candidate).filter(Candidate.id == interview.candidate_id).first()
             
             print(f"🔍 Final analysis for interview {interview_id}:")

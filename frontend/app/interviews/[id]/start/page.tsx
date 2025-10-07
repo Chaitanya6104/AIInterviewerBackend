@@ -114,7 +114,7 @@ export default function StartInterviewPage() {
         console.log('Preloading audio for all questions...')
         const allTexts = [
           ...questionBankData.data.questions.map((q: any) => q.question),
-          "🎉 Congratulations! You've completed the interview. Thank you for your time and thoughtful responses."
+          "Congratulations! You've completed the interview. Thank you for your time and thoughtful responses."
         ]
         preloadMultipleAudio(allTexts, avatarConfig)
       }
