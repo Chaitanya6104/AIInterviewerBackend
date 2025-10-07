@@ -461,6 +461,37 @@ async def create_scores(
     interview_id: int,
     current_user: User = Depends(get_current_user)
 ):
+    """Manually create scores for an interview"""
+    try:
+        from app.services.ai_service import AIService
+        ai_service = AIService()
+        
+        print(f"🔄 Manual score creation for interview {interview_id}")
+        
+        # Generate comprehensive final analysis
+        final_analysis = await ai_service.generate_final_analysis(str(interview_id))
+        
+        print(f"✅ Manual score creation completed for interview {interview_id}")
+        
+        return {
+            "message": "Scores created successfully",
+            "data": {
+                "analysis": final_analysis,
+                "interview_id": interview_id
+            }
+        }
+    
+    except Exception as e:
+        print(f"❌ Manual score creation failed for interview {interview_id}: {e}")
+        import traceback
+        print(f"❌ Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Score creation failed: {str(e)}")
+
+@router.post("/test-analysis/{interview_id}")
+async def test_analysis(
+    interview_id: int,
+    current_user: User = Depends(get_current_user)
+):
     """Create Score records for existing interviews"""
     try:
         from app.database import get_db

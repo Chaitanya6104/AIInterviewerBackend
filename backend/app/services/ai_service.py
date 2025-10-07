@@ -297,6 +297,31 @@ class AIService:
             
             print(f"✅ Interview found: {interview.title}, Status: {interview.status}")
             
+            # Check if interview is completed
+            if interview.status != "completed":
+                print(f"⚠️ Interview {interview_id} is not completed, status: {interview.status}")
+                return {
+                    "interview_id": interview_id,
+                    "status": "not_completed",
+                    "analysis": {
+                        "overall_score": 0,
+                        "communication_score": 0,
+                        "technical_score": 0,
+                        "problem_solving_score": 0,
+                        "cultural_fit_score": 0,
+                        "professional_experience_score": 0,
+                        "strengths": [],
+                        "areas_for_improvement": ["Interview not completed"],
+                        "hire_recommendation": "no_hire",
+                        "confidence_level": 0.0,
+                        "detailed_feedback": "The interview has not been completed yet.",
+                        "next_steps": ["Complete the interview first"],
+                        "interview_insights": {"best_response": "N/A", "weakest_response": "N/A", "consistency": "N/A", "growth_potential": "N/A"},
+                        "role_specific_assessment": "Interview not completed"
+                    },
+                    "generated_at": "2024-01-01T00:00:00Z"
+                }
+            
             responses = db.query(Response).filter(Response.interview_id == int(interview_id)).all()
             questions = db.query(Question).filter(Question.interview_id == int(interview_id)).all()
             candidate = db.query(Candidate).filter(Candidate.id == interview.candidate_id).first()
@@ -768,6 +793,9 @@ class AIService:
             db.commit()
             db.refresh(interview)
             
+            print(f"✅ Database transaction committed successfully")
+            print(f"📊 Final interview overall_score: {interview.overall_score}")
+            
             return {
                 "interview_id": interview_id,
                 "status": "completed",
@@ -777,7 +805,22 @@ class AIService:
         
         except Exception as e:
             print(f"❌ Final analysis error: {e}")
+            import traceback
+            print(f"❌ Full traceback: {traceback.format_exc()}")
+            # Rollback the transaction
+            try:
+                db.rollback()
+                print(f"🔄 Database transaction rolled back")
+            except:
+                pass
             raise Exception(f"Final analysis failed: {str(e)}")
+        finally:
+            # Ensure database session is closed
+            try:
+                db.close()
+                print(f"🔒 Database session closed")
+            except:
+                pass
     
     async def analyze_resume_text(self, resume_text: str, role_focus: str) -> Dict[str, Any]:
         """Analyze resume text and extract candidate information using OpenAI"""
