@@ -12,7 +12,8 @@ import asyncio
 engine = create_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    connect_args={"sslmode": "require"}
 )
 
 # Session factory
