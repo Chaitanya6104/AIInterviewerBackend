@@ -238,13 +238,22 @@ async def complete_interview(
         from app.services.ai_service import AIService
         ai_service = AIService()
         
+        print(f"🔄 Starting final analysis for interview {interview_id}")
+        
         # Generate comprehensive final analysis
         final_analysis = await ai_service.generate_final_analysis(str(interview_id))
         
         print(f"✅ Final analysis completed for interview {interview_id}")
+        print(f"📊 Analysis result: {final_analysis}")
+        
+        # Refresh interview to get updated scores
+        db.refresh(interview)
+        print(f"📊 Interview overall_score after analysis: {interview.overall_score}")
         
     except Exception as e:
         print(f"❌ Final analysis failed for interview {interview_id}: {e}")
+        import traceback
+        print(f"❌ Full traceback: {traceback.format_exc()}")
         # Don't fail the completion if analysis fails
     
     return {
@@ -314,6 +323,18 @@ async def get_interview_report(
     from app.models.score import Score
     score_record = db.query(Score).filter(Score.interview_id == interview_id).first()
     
+    print(f"🔍 Debug report for interview {interview_id}:")
+    print(f"   - Interview status: {interview.status}")
+    print(f"   - Interview overall_score: {interview.overall_score}")
+    print(f"   - Interview scores_breakdown: {interview.scores_breakdown}")
+    print(f"   - Score record found: {score_record is not None}")
+    
+    if score_record:
+        print(f"   - Score record overall_score: {score_record.overall_score}")
+        print(f"   - Score record technical_score: {score_record.technical_score}")
+        print(f"   - Score record communication_score: {score_record.communication_score}")
+        print(f"   - Score record scores_breakdown: {score_record.scores_breakdown}")
+    
     # Extract individual scores from Score table or fallback to interview scores_breakdown
     if score_record:
         scores_breakdown = score_record.scores_breakdown or {}
@@ -325,6 +346,7 @@ async def get_interview_report(
         feedback = score_record.interview_feedback.get('detailed_feedback', '') if score_record.interview_feedback else "No feedback available"
         strengths = score_record.analysis_summary.get('strengths', []) if score_record.analysis_summary else []
         areas_for_improvement = score_record.analysis_summary.get('areas_for_improvement', []) if score_record.analysis_summary else []
+        print(f"   - Using Score record data")
     else:
         # Fallback to interview scores_breakdown
         scores_breakdown = interview.scores_breakdown or {}
@@ -336,6 +358,10 @@ async def get_interview_report(
         feedback = interview.feedback or "No feedback available"
         strengths = interview.strengths or []
         areas_for_improvement = interview.areas_for_improvement or []
+        print(f"   - Using Interview fallback data")
+    
+    print(f"   - Final scores: overall={overall_score}, technical={technical_score}, communication={communication_score}")
+    print(f"   - Final scores_breakdown: {scores_breakdown}")
     
     # Calculate scores from individual responses if no scores exist
     if overall_score == 0 and not score_record:
