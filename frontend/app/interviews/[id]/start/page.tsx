@@ -400,7 +400,7 @@ export default function StartInterviewPage() {
         }
       } else {
         // Interview completed - show completion message and complete the interview
-        const congratulationsMessage = "🎉 Congratulations! You've completed the interview. Thank you for your time and thoughtful responses."
+        const congratulationsMessage = "Congratulations! You've completed the interview. Thank you for your time and thoughtful responses."
         
         // Preload congratulations message before setting it as current question
         console.log('Preloading congratulations message...')
