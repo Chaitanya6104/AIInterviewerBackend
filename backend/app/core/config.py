@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     
     # Database
-    DATABASE_URL: str = "postgresql://interviewer_user:secure_password_123@localhost:5432/ai_interviewer"
+    DATABASE_URL: str = "postgresql+psycopg://ai_interviewer_db_pli4_user:TCgNl6qoUeZqmoWNbjUlfdJUBGDjni0W@dpg-d3iff6pr0fns73cs4n6g-a/ai_interviewer_db_pli4"
     
     # OpenAI Configuration
     OPENAI_API_KEY: str = ""
