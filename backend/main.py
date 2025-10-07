@@ -41,6 +41,7 @@ app = FastAPI(
 
 # CORS middleware - Use wildcard for debugging
 print(f"DEBUG: ALLOWED_ORIGINS = {settings.ALLOWED_ORIGINS}")
+print(f"DEBUG: Starting CORS middleware setup")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins temporarily
@@ -48,6 +49,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+print(f"DEBUG: CORS middleware added successfully")
 
 # Manual CORS handler for preflight requests
 @app.middleware("http")
@@ -68,6 +70,12 @@ async def add_cors_headers(request: Request, call_next):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
     
     return response
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "message": "Backend is running"}
 
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
