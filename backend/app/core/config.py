@@ -51,11 +51,16 @@ class Settings(BaseSettings):
         
         # Add environment-based origins if they exist
         env_origins = os.getenv("ALLOWED_ORIGINS")
+        print(f"DEBUG: Environment ALLOWED_ORIGINS = {env_origins}")
         if env_origins:
             env_origin_list = [origin.strip() for origin in env_origins.split(",")]
+            print(f"DEBUG: Parsed env origins = {env_origin_list}")
             self.ALLOWED_ORIGINS.extend(env_origin_list)
             # Remove duplicates
             self.ALLOWED_ORIGINS = list(set(self.ALLOWED_ORIGINS))
+            print(f"DEBUG: Final ALLOWED_ORIGINS after env merge = {self.ALLOWED_ORIGINS}")
+        else:
+            print(f"DEBUG: No environment ALLOWED_ORIGINS found")
     
     # File Storage
     UPLOAD_DIR: str = "uploads"

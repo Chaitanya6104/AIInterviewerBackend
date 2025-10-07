@@ -28,7 +28,7 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "30"
       - key: ALLOWED_ORIGINS
-        value: "https://ai-interviewer-frontend-9db9.onrender.com,https://ai-interviewer-frontend.onrender.com,https://ai-interviewer-frontend-gl33.onrender.com"
+        value: "https://ai-interviewer-frontend-gl33.onrender.com"
       - key: DEBUG
         value: "false"
       - key: UPLOAD_DIR
