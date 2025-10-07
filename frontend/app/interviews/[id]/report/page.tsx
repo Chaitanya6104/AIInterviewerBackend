@@ -14,6 +14,9 @@ import { aiAPI } from '@/lib/api'
 import { safeRender, safeDateFormat, safeNumberFormat } from '@/lib/utils'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 export default function InterviewReportPage() {
   const [generatingReport, setGeneratingReport] = useState(false)
   
