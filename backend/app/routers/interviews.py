@@ -327,6 +327,11 @@ async def get_interview_report(
     print(f"   - Interview status: {interview.status}")
     print(f"   - Interview overall_score: {interview.overall_score}")
     print(f"   - Interview scores_breakdown: {interview.scores_breakdown}")
+    print(f"   - Interview scores_breakdown type: {type(interview.scores_breakdown)}")
+    if interview.scores_breakdown:
+        print(f"   - Interview scores_breakdown keys: {list(interview.scores_breakdown.keys())}")
+        for key, value in interview.scores_breakdown.items():
+            print(f"     - {key}: {value}")
     print(f"   - Score record found: {score_record is not None}")
     
     if score_record:
@@ -374,6 +379,8 @@ async def get_interview_report(
     
     print(f"   - Final scores: overall={overall_score}, technical={technical_score}, communication={communication_score}")
     print(f"   - Final scores_breakdown: {scores_breakdown}")
+    print(f"   - Final scores_breakdown type: {type(scores_breakdown)}")
+    print(f"   - Final scores_breakdown keys: {list(scores_breakdown.keys()) if isinstance(scores_breakdown, dict) else 'NOT A DICT'}")
     
     # Calculate scores from individual responses if no scores exist
     if overall_score == 0 and not score_record:
