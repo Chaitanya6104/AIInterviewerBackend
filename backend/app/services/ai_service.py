@@ -707,31 +707,46 @@ class AIService:
                 raise Exception(f"Failed to parse AI response as JSON: {json_error}")
             
             # Update interview with comprehensive analysis results
-            interview.overall_score = analysis.get('overall_score', 0)
+            # Use calculated scores instead of AI's scores (AI might return 0 or incorrect values)
+            interview.overall_score = overall_average
             interview.scores_breakdown = {
-                'communication': analysis.get('communication_score', 0),
-                'technical': analysis.get('technical_score', 0),
-                'problem_solving': analysis.get('problem_solving_score', 0),
-                'cultural_fit': analysis.get('cultural_fit_score', 0),
-                'professional_experience': analysis.get('professional_experience_score', 0),
-                'detailed_breakdown': analysis.get('detailed_scores_breakdown', {})
+                'communication': avg_communication,
+                'technical': avg_technical,
+                'problem_solving': avg_problem_solving,
+                'cultural_fit': avg_relevance,
+                'professional_experience': avg_experience,
+                'detailed_breakdown': {
+                    'technical_accuracy': avg_technical,
+                    'communication_clarity': avg_communication,
+                    'problem_solving_approach': avg_problem_solving,
+                    'relevance_to_questions': avg_relevance,
+                    'professional_experience': avg_experience
+                }
             }
             interview.feedback = analysis.get('detailed_feedback', '')
             interview.strengths = analysis.get('strengths', [])
             interview.areas_for_improvement = analysis.get('areas_for_improvement', [])
+            
+            print(f"📊 Storing scores: overall={overall_average:.1f}, technical={avg_technical:.1f}, communication={avg_communication:.1f}")
             
             # Create or update Score record
             from app.models.score import Score
             existing_score = db.query(Score).filter(Score.interview_id == interview_id).first()
             
             if existing_score:
-                # Update existing score
-                existing_score.overall_score = analysis.get('overall_score', 0)
-                existing_score.communication_score = analysis.get('communication_score', 0)
-                existing_score.technical_score = analysis.get('technical_score', 0)
-                existing_score.problem_solving_score = analysis.get('problem_solving_score', 0)
-                existing_score.cultural_fit_score = analysis.get('cultural_fit_score', 0)
-                existing_score.scores_breakdown = analysis.get('detailed_scores_breakdown', {})
+                # Update existing score with calculated values
+                existing_score.overall_score = overall_average
+                existing_score.communication_score = avg_communication
+                existing_score.technical_score = avg_technical
+                existing_score.problem_solving_score = avg_problem_solving
+                existing_score.cultural_fit_score = avg_relevance
+                existing_score.scores_breakdown = {
+                    'technical_accuracy': avg_technical,
+                    'communication_clarity': avg_communication,
+                    'problem_solving_approach': avg_problem_solving,
+                    'relevance_to_questions': avg_relevance,
+                    'professional_experience': avg_experience
+                }
                 existing_score.ai_confidence = analysis.get('confidence_level', 0.8)
                 existing_score.analysis_summary = {
                     'strengths': analysis.get('strengths', []),
@@ -746,23 +761,28 @@ class AIService:
                     'overall_assessment': analysis.get('overall_assessment', '')
                 }
             else:
-                # Create new score record
-                print(f"📊 Creating new Score record with values:")
-                print(f"   - overall_score: {analysis.get('overall_score', 0)}")
-                print(f"   - communication_score: {analysis.get('communication_score', 0)}")
-                print(f"   - technical_score: {analysis.get('technical_score', 0)}")
-                print(f"   - problem_solving_score: {analysis.get('problem_solving_score', 0)}")
-                print(f"   - cultural_fit_score: {analysis.get('cultural_fit_score', 0)}")
-                print(f"   - scores_breakdown: {analysis.get('detailed_scores_breakdown', {})}")
+                # Create new score record with calculated values
+                print(f"📊 Creating new Score record with calculated values:")
+                print(f"   - overall_score: {overall_average:.1f}")
+                print(f"   - communication_score: {avg_communication:.1f}")
+                print(f"   - technical_score: {avg_technical:.1f}")
+                print(f"   - problem_solving_score: {avg_problem_solving:.1f}")
+                print(f"   - cultural_fit_score: {avg_relevance:.1f}")
                 
                 new_score = Score(
                     interview_id=int(interview_id),
-                    overall_score=analysis.get('overall_score', 0),
-                    communication_score=analysis.get('communication_score', 0),
-                    technical_score=analysis.get('technical_score', 0),
-                    problem_solving_score=analysis.get('problem_solving_score', 0),
-                    cultural_fit_score=analysis.get('cultural_fit_score', 0),
-                    scores_breakdown=analysis.get('detailed_scores_breakdown', {}),
+                    overall_score=overall_average,
+                    communication_score=avg_communication,
+                    technical_score=avg_technical,
+                    problem_solving_score=avg_problem_solving,
+                    cultural_fit_score=avg_relevance,
+                    scores_breakdown={
+                        'technical_accuracy': avg_technical,
+                        'communication_clarity': avg_communication,
+                        'problem_solving_approach': avg_problem_solving,
+                        'relevance_to_questions': avg_relevance,
+                        'professional_experience': avg_experience
+                    },
                     ai_confidence=analysis.get('confidence_level', 0.8),
                     analysis_summary={
                         'strengths': analysis.get('strengths', []),
