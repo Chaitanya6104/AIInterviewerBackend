@@ -7,6 +7,7 @@ websockets==12.0
 sqlalchemy==2.0.36
 alembic==1.12.1
 psycopg[binary]==3.2.3
+psycopg2-binary==2.9.9
 
 # AI & ML
 openai==1.6.1
