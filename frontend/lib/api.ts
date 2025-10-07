@@ -17,14 +17,21 @@ api.interceptors.request.use((config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    // Add origin header for CORS
+    config.headers.Origin = window.location.origin
+    console.log('🌐 API Request:', config.method?.toUpperCase(), config.url, 'Origin:', window.location.origin)
   }
   return config
 })
 
 // Handle auth errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ API Response:', response.status, response.config.url)
+    return response
+  },
   (error) => {
+    console.log('❌ API Error:', error.response?.status, error.config?.url, error.message)
     if (error.response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('auth_token')
       window.location.href = '/login'
