@@ -347,6 +347,21 @@ async def get_interview_report(
         strengths = score_record.analysis_summary.get('strengths', []) if score_record.analysis_summary else []
         areas_for_improvement = score_record.analysis_summary.get('areas_for_improvement', []) if score_record.analysis_summary else []
         print(f"   - Using Score record data")
+        
+        # If Score record has individual scores as 0, try to get from interview scores_breakdown
+        if technical_score == 0 and communication_score == 0 and interview.scores_breakdown:
+            print(f"   - Score record has 0 scores, falling back to interview.scores_breakdown")
+            interview_breakdown = interview.scores_breakdown or {}
+            technical_score = interview_breakdown.get('technical', 0)
+            communication_score = interview_breakdown.get('communication', 0)
+            problem_solving_score = interview_breakdown.get('problem_solving', 0)
+            cultural_fit_score = interview_breakdown.get('cultural_fit', 0)
+            # Also use the detailed_breakdown if available
+            if 'detailed_breakdown' in interview_breakdown:
+                scores_breakdown = interview_breakdown.get('detailed_breakdown', {})
+            else:
+                scores_breakdown = interview_breakdown
+            print(f"   - Retrieved scores from interview: tech={technical_score}, comm={communication_score}")
     else:
         # Fallback to interview scores_breakdown
         scores_breakdown = interview.scores_breakdown or {}
