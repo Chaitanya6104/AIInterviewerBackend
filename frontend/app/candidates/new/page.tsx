@@ -57,33 +57,36 @@ export default function NewCandidatePage() {
         let text = ''
         
         if (file.type === 'application/pdf') {
-          console.log('PDF file detected, extracting text...')
-          // Convert file to ArrayBuffer for PDF parsing
-          const arrayBuffer = await file.arrayBuffer()
+          console.log('PDF file detected, sending to backend for processing...')
           
           try {
-            // Dynamic import with proper browser configuration
-            const pdfjsLib = await import('pdfjs-dist')
+            // Send PDF to backend for text extraction
+            const formData = new FormData()
+            formData.append('file', file)
             
-            // Configure pdfjs for browser environment
-            pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
+            // Get auth token
+            const token = localStorage.getItem('auth_token')
+            const headers: HeadersInit = {}
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`
+            }
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/ai/extract-pdf-text`, {
+              method: 'POST',
+              headers,
+              body: formData,
+            })
             
-            // Load PDF document
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-            let fullText = ''
-            
-            // Extract text from all pages
-            for (let i = 1; i <= pdf.numPages; i++) {
-              const page = await pdf.getPage(i)
-              const textContent = await page.getTextContent()
-              const pageText = textContent.items.map((item: any) => item.str).join(' ')
-              fullText += pageText + '\n'
+            if (!response.ok) {
+              throw new Error('Failed to extract text from PDF')
             }
             
-            text = fullText.trim()
+            const result = await response.json()
+            text = result.text
+            
             console.log('PDF text extracted successfully, length:', text.length)
             
-            if (text.length === 0) {
+            if (!text || text.length === 0) {
               throw new Error('No text could be extracted from the PDF file')
             }
           } catch (pdfError) {

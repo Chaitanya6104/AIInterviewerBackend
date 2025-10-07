@@ -184,6 +184,12 @@ audio_cache/
 # Docker
 docker-compose.override.yml
 .dockerignore
+Docker.dmg
+get-docker.sh
+
+# Production environment files
+env.production
+.env.production
 
 # Testing
 coverage/

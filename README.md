@@ -300,4 +300,8 @@ SECRET_KEY=your_production_secret_key
    # Clear cache and reinstall
    rm -rf node_modules package-lock.json
    npm install
+<<<<<<< HEAD
    ```
+=======
+   ```
+>>>>>>> 08a467ea071996fe4118a64fd8daebf19435db1e

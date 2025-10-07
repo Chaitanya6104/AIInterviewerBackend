@@ -1,0 +1,60 @@
+"""
+Configuration settings for the AI Interviewer application
+"""
+
+from pydantic_settings import BaseSettings
+from typing import List
+import os
+
+
+class Settings(BaseSettings):
+    """Application settings"""
+    
+    # App Configuration
+    APP_NAME: str = "AI Interviewer"
+    VERSION: str = "1.0.0"
+    DEBUG: bool = False
+    
+    # Database
+    DATABASE_URL: str = "postgresql://interviewer_user:secure_password_123@localhost:5432/ai_interviewer"
+    
+    # OpenAI Configuration
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-4o"
+    WHISPER_MODEL: str = "whisper-1"
+    
+    # Pinecone Configuration
+    PINECONE_API_KEY: str = ""
+    PINECONE_ENVIRONMENT: str = "us-west1-gcp"
+    PINECONE_INDEX_NAME: str = "ai-interviewer"
+    
+    # Security
+    SECRET_KEY: str = "your-secret-key-here"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
+    # CORS
+    ALLOWED_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "https://ai-interviewer-frontend.onrender.com",
+        "https://your-frontend-url.onrender.com"
+    ]
+    
+    # File Storage
+    UPLOAD_DIR: str = "uploads"
+    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
+    
+    # Interview Settings
+    MAX_INTERVIEW_DURATION: int = 60  # minutes
+    DEFAULT_QUESTION_COUNT: int = 10
+    
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+
+
+# Global settings instance
+settings = Settings()

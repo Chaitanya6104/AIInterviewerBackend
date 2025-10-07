@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Save } from 'lucide-react'
@@ -45,7 +45,7 @@ export default function AvatarSettingsPage() {
   }
 
   // Load saved configuration on mount
-  useState(() => {
+  useEffect(() => {
     const savedConfig = localStorage.getItem('avatarConfig')
     if (savedConfig) {
       try {
@@ -55,7 +55,7 @@ export default function AvatarSettingsPage() {
         console.error('Failed to parse saved config:', error)
       }
     }
-  })
+  }, [])
 
   return (
     <ProtectedRoute>

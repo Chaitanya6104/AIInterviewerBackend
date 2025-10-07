@@ -1,33 +1,41 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
   images: {
-    domains: ['localhost', 'your-domain.com'],
+    unoptimized: true
   },
-  // Suppress hydration warnings for browser extensions (like Grammarly)
-  reactStrictMode: true,
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
   },
-  webpack: (config, { isServer }) => {
-    // Handle PDF.js dependencies
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-      canvas: false,
-      'pdfjs-dist/build/pdf.worker.entry': false,
-    };
-    
-    // Only apply externals for client-side builds
-    if (!isServer) {
-      config.externals = config.externals || [];
-      config.externals.push({
-        canvas: 'canvas',
-      });
-    }
-    
-    return config;
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+      },
+    ]
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+    ]
   },
 }
 

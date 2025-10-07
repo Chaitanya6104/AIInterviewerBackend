@@ -860,8 +860,8 @@ class AIService:
                     "question": "Question text",
                     "question_type": "behavioral|technical|situational",
                     "difficulty": "easy|medium|hard",
-                    "skills_tested": ["skill1", "skill2"],
-                    "expected_answer_points": ["point1", "point2"]
+                    "skills_tested": l2"],
+                    "expected_answer_points": ["point1", "p["skill1", "skiloint2"]
                 }}
             ]
             """

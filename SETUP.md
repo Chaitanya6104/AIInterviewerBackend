@@ -418,4 +418,8 @@ You've successfully set up the AI Interviewer Platform!
 3. Explore the AI avatar features
 4. Generate your first report
 
+<<<<<<< HEAD
 **Happy Interviewing! 🎤🤖**
+=======
+**Happy Interviewing! 🎤🤖**
+>>>>>>> 08a467ea071996fe4118a64fd8daebf19435db1e

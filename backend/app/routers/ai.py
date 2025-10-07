@@ -904,7 +904,7 @@ async def get_available_voices(
 ):
     """Get available TTS voices and languages"""
     try:
-        voices = await tts_service.get_available_voices()
+        voices = await TTSService.get_available_voices()
         return voices
     
     except Exception as e:
@@ -935,3 +935,66 @@ async def clear_tts_cache(
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to clear cache: {str(e)}")
+
+
+@router.post("/extract-pdf-text")
+async def extract_pdf_text(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Extract text from PDF file"""
+    try:
+        print(f"PDF extraction request received for file: {file.filename}")
+        
+        # Check file type
+        if not file.filename or not file.filename.lower().endswith('.pdf'):
+            print(f"Invalid file type: {file.filename}")
+            raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+        
+        # Read file content
+        content = await file.read()
+        print(f"File content read, size: {len(content)} bytes")
+        
+        if len(content) == 0:
+            raise HTTPException(status_code=400, detail="Empty file received")
+        
+        # Extract text using PyPDF2
+        import PyPDF2
+        import io
+        
+        try:
+            pdf_reader = PyPDF2.PdfReader(io.BytesIO(content))
+            print(f"PDF reader created, pages: {len(pdf_reader.pages)}")
+            
+            text = ""
+            for i, page in enumerate(pdf_reader.pages):
+                try:
+                    page_text = page.extract_text()
+                    text += page_text + "\n"
+                    print(f"Page {i+1} text extracted, length: {len(page_text)}")
+                except Exception as page_error:
+                    print(f"Error extracting text from page {i+1}: {page_error}")
+                    continue
+            
+            text = text.strip()
+            print(f"Total text extracted, length: {len(text)}")
+            
+            if not text:
+                raise HTTPException(status_code=400, detail="No text could be extracted from the PDF file")
+            
+            return {
+                "message": "PDF text extracted successfully",
+                "text": text,
+                "pages": len(pdf_reader.pages),
+                "size": len(content)
+            }
+            
+        except Exception as pdf_error:
+            print(f"PyPDF2 error: {pdf_error}")
+            raise HTTPException(status_code=500, detail=f"PDF parsing failed: {str(pdf_error)}")
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Unexpected error in PDF extraction: {e}")
+        raise HTTPException(status_code=500, detail=f"PDF text extraction failed: {str(e)}")

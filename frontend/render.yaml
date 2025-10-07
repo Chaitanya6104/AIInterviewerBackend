@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ai-interviewer-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./out
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://ai-interviewer-backend.onrender.com
