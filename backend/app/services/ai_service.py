@@ -117,7 +117,8 @@ class AIService:
                     {"role": "system", "content": "You are an expert interview analyst. Provide detailed, objective analysis of candidate responses. Always respond with valid JSON only."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.3
+                temperature=0.1,  # Lower temperature for more consistent results
+                max_tokens=1000  # Limit response length for faster processing
             )
             
             analysis_text = response.choices[0].message.content.strip()
@@ -622,7 +623,8 @@ class AIService:
                     {"role": "system", "content": "You are an expert interview analyst. Provide comprehensive, objective analysis and scoring."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.3
+                temperature=0.1,  # Lower temperature for more consistent results
+                max_tokens=1500  # Limit response length for faster processing
             )
             
             analysis_text = response.choices[0].message.content.strip()
