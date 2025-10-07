@@ -9,6 +9,7 @@ import { ArrowLeft, Mic, MicOff, MessageSquare, Brain, Clock, Play, Pause, Squar
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useInterview, useStartInterview, useAnalyzeResponse, useTranscribeAudio, useQuestionBank, useCompleteInterview, useStoreResponse, useStoreQuestions } from '@/lib/hooks'
+import { aiAPI } from '@/lib/api'
 import { safeRender, safeDateFormat } from '@/lib/utils'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Avatar from '@/components/Avatar'
@@ -125,23 +126,35 @@ export default function StartInterviewPage() {
     
     try {
       setLoading(true)
-      const result = await startInterviewMutation.mutateAsync(interview.id)
       
-      if (result.data.questions && result.data.questions.length > 0) {
-        setQuestions(result.data.questions)
-        setCurrentQuestion(result.data.questions[0])
+      // Step 1: Start the interview (change status to IN_PROGRESS)
+      await startInterviewMutation.mutateAsync(interview.id)
+      
+      // Step 2: Generate questions using AI
+      const questionsResponse = await aiAPI.generateQuestions(
+        interview.candidate_id,
+        interview.position || 'Software Engineer',
+        'medium',
+        5
+      )
+      
+      if (questionsResponse.data.data.questions && questionsResponse.data.data.questions.length > 0) {
+        const generatedQuestions = questionsResponse.data.data.questions
+        
+        setQuestions(generatedQuestions)
+        setCurrentQuestion(generatedQuestions[0])
         setCurrentQuestionIndex(0)
         setIsInterviewStarted(true)
         
         // Store questions in the database
         await storeQuestionsMutation.mutateAsync({
           interview_id: interview.id,
-          questions: result.data.questions
+          questions: generatedQuestions
         })
         
         // Speak the first question
-        if (result.data.questions[0]) {
-          await speakQuestion(result.data.questions[0])
+        if (generatedQuestions[0]) {
+          await speakQuestion(generatedQuestions[0])
         }
       }
     } catch (error) {
