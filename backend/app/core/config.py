@@ -40,8 +40,8 @@ class Settings(BaseSettings):
         "http://localhost:3001",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
-        "https://ai-interviewer-frontend.onrender.com",
-        "https://your-frontend-url.onrender.com"
+        "https://ai-interviewer-frontend-9db9.onrender.com",
+        "https://ai-interviewer-frontend.onrender.com"
     ]
     
     def __init__(self, **kwargs):
@@ -49,6 +49,14 @@ class Settings(BaseSettings):
         # Handle ALLOWED_ORIGINS as comma-separated string
         if isinstance(self.ALLOWED_ORIGINS, str):
             self.ALLOWED_ORIGINS = [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
+        
+        # Add environment-based origins if they exist
+        env_origins = os.getenv("ALLOWED_ORIGINS")
+        if env_origins:
+            env_origin_list = [origin.strip() for origin in env_origins.split(",")]
+            self.ALLOWED_ORIGINS.extend(env_origin_list)
+            # Remove duplicates
+            self.ALLOWED_ORIGINS = list(set(self.ALLOWED_ORIGINS))
     
     # File Storage
     UPLOAD_DIR: str = "uploads"
