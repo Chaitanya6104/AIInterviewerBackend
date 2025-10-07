@@ -731,7 +731,7 @@ class AIService:
             
             # Create or update Score record
             from app.models.score import Score
-            existing_score = db.query(Score).filter(Score.interview_id == interview_id).first()
+            existing_score = db.query(Score).filter(Score.interview_id == int(interview_id)).first()
             
             if existing_score:
                 # Update existing score with calculated values
