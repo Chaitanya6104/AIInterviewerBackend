@@ -40,8 +40,6 @@ class Settings(BaseSettings):
         "http://localhost:3001",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:3001",
-        "https://ai-interviewer-frontend-9db9.onrender.com",
-        "https://ai-interviewer-frontend.onrender.com",
         "https://ai-interviewer-frontend-gl33.onrender.com"
     ]
     
