@@ -44,10 +44,18 @@ print(f"DEBUG: ALLOWED_ORIGINS = {settings.ALLOWED_ORIGINS}")
 print(f"DEBUG: ALLOWED_ORIGINS type = {type(settings.ALLOWED_ORIGINS)}")
 print(f"DEBUG: Environment ALLOWED_ORIGINS = {os.getenv('ALLOWED_ORIGINS')}")
 print(f"DEBUG: All environment variables with ALLOWED: {[k for k in os.environ.keys() if 'ALLOWED' in k]}")
+
+# Force use environment variable directly if available
+cors_origins = settings.ALLOWED_ORIGINS
+env_origins = os.getenv('ALLOWED_ORIGINS')
+if env_origins:
+    cors_origins = [origin.strip() for origin in env_origins.split(",")]
+    print(f"DEBUG: Using environment origins directly: {cors_origins}")
+
 print(f"DEBUG: Starting CORS middleware setup")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,  # Use configured origins
+    allow_origins=cors_origins,  # Use environment origins directly
     allow_credentials=True,  # Allow credentials for authenticated requests
     allow_methods=["*"],
     allow_headers=["*"],
@@ -64,13 +72,14 @@ async def add_cors_headers(request: Request, call_next):
     response = await call_next(request)
     
     # Add CORS headers - use specific origins
-    print(f"DEBUG: Checking origin {origin} against allowed origins: {settings.ALLOWED_ORIGINS}")
-    if origin and origin in settings.ALLOWED_ORIGINS:
+    allowed_origins = cors_origins  # Use the same origins as CORS middleware
+    print(f"DEBUG: Checking origin {origin} against allowed origins: {allowed_origins}")
+    if origin and origin in allowed_origins:
         response.headers["Access-Control-Allow-Origin"] = origin
         print(f"DEBUG: Origin {origin} is allowed")
     else:
         # Use the first allowed origin as fallback
-        fallback_origin = settings.ALLOWED_ORIGINS[0] if settings.ALLOWED_ORIGINS else "*"
+        fallback_origin = allowed_origins[0] if allowed_origins else "*"
         response.headers["Access-Control-Allow-Origin"] = fallback_origin
         print(f"DEBUG: Origin {origin} not allowed, using fallback: {fallback_origin}")
     response.headers["Access-Control-Allow-Credentials"] = "true"
@@ -108,10 +117,10 @@ async def websocket_endpoint(websocket: WebSocket, interview_id: str):
 async def options_handler(path: str, request: Request):
     """Handle preflight OPTIONS requests"""
     origin = request.headers.get("origin", "*")
-    if origin in settings.ALLOWED_ORIGINS:
+    if origin in cors_origins:
         allowed_origin = origin
     else:
-        allowed_origin = settings.ALLOWED_ORIGINS[0] if settings.ALLOWED_ORIGINS else "*"
+        allowed_origin = cors_origins[0] if cors_origins else "*"
     
     return Response(
         status_code=200,
