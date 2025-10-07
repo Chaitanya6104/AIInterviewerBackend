@@ -9,6 +9,9 @@ from app.core.config import settings
 import asyncio
 
 # Database engine
+print(f"DEBUG: DATABASE_URL = {settings.DATABASE_URL}")
+print(f"DEBUG: Using psycopg driver for PostgreSQL")
+
 engine = create_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
