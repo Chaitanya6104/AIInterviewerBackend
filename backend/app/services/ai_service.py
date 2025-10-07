@@ -288,9 +288,14 @@ class AIService:
             from app.models.candidate import Candidate
             
             db = next(get_db())
+            print(f"🔍 Database session created for interview {interview_id}")
+            
             interview = db.query(Interview).filter(Interview.id == int(interview_id)).first()
             if not interview:
+                print(f"❌ Interview {interview_id} not found in database")
                 raise Exception(f"Interview {interview_id} not found")
+            
+            print(f"✅ Interview found: {interview.title}, Status: {interview.status}")
             
             responses = db.query(Response).filter(Response.interview_id == int(interview_id)).all()
             questions = db.query(Question).filter(Question.interview_id == int(interview_id)).all()
@@ -301,10 +306,35 @@ class AIService:
             print(f"   - Found {len(questions)} questions")
             print(f"   - Candidate: {candidate.full_name if candidate else 'Unknown'}")
             
+            # Check if we have responses to analyze
+            if len(responses) == 0:
+                print(f"⚠️ No responses found for interview {interview_id}")
+                return {
+                    "interview_id": interview_id,
+                    "status": "completed",
+                    "analysis": {
+                        "overall_score": 0,
+                        "communication_score": 0,
+                        "technical_score": 0,
+                        "problem_solving_score": 0,
+                        "cultural_fit_score": 0,
+                        "professional_experience_score": 0,
+                        "strengths": [],
+                        "areas_for_improvement": ["No responses provided"],
+                        "hire_recommendation": "no_hire",
+                        "confidence_level": 0.0,
+                        "detailed_feedback": "The candidate did not provide any responses during the interview, resulting in a complete lack of assessment across all evaluation criteria.",
+                        "next_steps": ["Request candidate to retake the interview"],
+                        "interview_insights": {"best_response": "No responses provided", "weakest_response": "No responses provided", "consistency": "Unable to assess", "growth_potential": "Unable to assess"},
+                        "role_specific_assessment": "Unable to assess candidate fit due to lack of responses"
+                    },
+                    "generated_at": "2024-01-01T00:00:00Z"
+                }
+            
             # Debug: Print response details
             for i, response in enumerate(responses):
                 print(f"   - Response {i+1}: ID={response.id}, Question ID={response.question_id}")
-                print(f"     Text: {response.text_response[:100]}...")
+                print(f"     Text: {response.text_response[:100] if response.text_response else 'No text'}...")
                 print(f"     AI Analysis: {bool(response.ai_analysis)}")
                 print(f"     Score: {response.score}")
             
