@@ -7,6 +7,21 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 import asyncio
+import os
+
+# Ensure psycopg is available and psycopg2 is not used
+try:
+    import psycopg
+    print(f"DEBUG: psycopg imported successfully: {psycopg.__version__}")
+except ImportError as e:
+    print(f"DEBUG: Failed to import psycopg: {e}")
+
+# Try to prevent psycopg2 import
+try:
+    import psycopg2
+    print(f"DEBUG: WARNING - psycopg2 is available, this might cause conflicts")
+except ImportError:
+    print(f"DEBUG: psycopg2 not available (good)")
 
 # Database engine
 print(f"DEBUG: Original DATABASE_URL = {settings.DATABASE_URL}")
@@ -23,6 +38,7 @@ else:
 print(f"DEBUG: Final database_url = {database_url}")
 print(f"DEBUG: Using psycopg driver for PostgreSQL")
 
+# Force use of psycopg driver by ensuring the URL uses the correct scheme
 engine = create_engine(
     database_url,
     echo=settings.DEBUG,
