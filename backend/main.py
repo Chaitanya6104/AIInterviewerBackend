@@ -41,6 +41,8 @@ app = FastAPI(
 
 # CORS middleware - Use specific origins with credentials
 print(f"DEBUG: ALLOWED_ORIGINS = {settings.ALLOWED_ORIGINS}")
+print(f"DEBUG: ALLOWED_ORIGINS type = {type(settings.ALLOWED_ORIGINS)}")
+print(f"DEBUG: Environment ALLOWED_ORIGINS = {os.getenv('ALLOWED_ORIGINS')}")
 print(f"DEBUG: Starting CORS middleware setup")
 app.add_middleware(
     CORSMiddleware,
@@ -61,10 +63,15 @@ async def add_cors_headers(request: Request, call_next):
     response = await call_next(request)
     
     # Add CORS headers - use specific origins
+    print(f"DEBUG: Checking origin {origin} against allowed origins: {settings.ALLOWED_ORIGINS}")
     if origin and origin in settings.ALLOWED_ORIGINS:
         response.headers["Access-Control-Allow-Origin"] = origin
+        print(f"DEBUG: Origin {origin} is allowed")
     else:
-        response.headers["Access-Control-Allow-Origin"] = settings.ALLOWED_ORIGINS[0] if settings.ALLOWED_ORIGINS else "*"
+        # Use the first allowed origin as fallback
+        fallback_origin = settings.ALLOWED_ORIGINS[0] if settings.ALLOWED_ORIGINS else "*"
+        response.headers["Access-Control-Allow-Origin"] = fallback_origin
+        print(f"DEBUG: Origin {origin} not allowed, using fallback: {fallback_origin}")
     response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
