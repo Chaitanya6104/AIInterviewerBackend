@@ -2,8 +2,8 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import StartInterviewPage from './start'
-import InterviewReportPage from './report'
+import StartInterviewPage from '../components/StartInterview'
+import InterviewReportPage from '../components/InterviewReport'
 
 export default function InterviewClient() {
   const router = useRouter()
