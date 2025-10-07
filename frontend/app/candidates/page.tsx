@@ -1,15 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { Button } from '../../components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
+import { Badge } from '../../components/ui/badge'
+import { Input } from '../../components/ui/input'
 import { Plus, Search, Users, Mail, Phone, MapPin, Calendar, Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { useCandidates } from '@/lib/hooks'
-import { safeRender, safeDateFormat } from '@/lib/utils'
-import ProtectedRoute from '@/components/ProtectedRoute'
+import { useCandidates } from '../../lib/hooks'
+import { safeRender, safeDateFormat } from '../../lib/utils'
+import ProtectedRoute from '../../components/ProtectedRoute'
 
 export default function CandidatesPage() {
   const [searchTerm, setSearchTerm] = useState('')

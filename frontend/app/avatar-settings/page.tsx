@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '../../components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { ArrowLeft, Save } from 'lucide-react'
 import Link from 'next/link'
-import AvatarConfigComponent from '@/components/AvatarConfig'
-import Avatar from '@/components/Avatar'
-import { AvatarConfig, speakWithAvatar } from '@/lib/avatar'
-import ProtectedRoute from '@/components/ProtectedRoute'
+import AvatarConfigComponent from '../../components/AvatarConfig'
+import Avatar from '../../components/Avatar'
+import { AvatarConfig, speakWithAvatar } from '../../lib/avatar'
+import ProtectedRoute from '../../components/ProtectedRoute'
 
 export default function AvatarSettingsPage() {
   const [config, setConfig] = useState<AvatarConfig>({
