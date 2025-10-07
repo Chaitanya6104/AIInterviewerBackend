@@ -15,8 +15,8 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Avatar from '@/components/Avatar'
 import { AvatarConfig, preloadAudio, preloadMultipleAudio } from '@/lib/avatar'
 
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic'
+// Static export configuration
+export const dynamicParams = true
 
 export default function StartInterviewPage() {
   const [isRecording, setIsRecording] = useState(false)
