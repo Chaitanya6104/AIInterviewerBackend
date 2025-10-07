@@ -10,6 +10,7 @@ import asyncio
 
 # Database engine
 print(f"DEBUG: Original DATABASE_URL = {settings.DATABASE_URL}")
+print(f"DEBUG: URL starts with postgresql:// = {settings.DATABASE_URL.startswith('postgresql://')}")
 
 # Convert postgresql:// to postgresql+psycopg:// to use psycopg driver
 database_url = settings.DATABASE_URL
@@ -19,6 +20,7 @@ if database_url.startswith("postgresql://"):
 else:
     print(f"DEBUG: DATABASE_URL already uses psycopg driver")
 
+print(f"DEBUG: Final database_url = {database_url}")
 print(f"DEBUG: Using psycopg driver for PostgreSQL")
 
 engine = create_engine(
