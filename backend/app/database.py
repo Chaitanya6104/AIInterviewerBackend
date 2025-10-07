@@ -9,11 +9,20 @@ from app.core.config import settings
 import asyncio
 
 # Database engine
-print(f"DEBUG: DATABASE_URL = {settings.DATABASE_URL}")
+print(f"DEBUG: Original DATABASE_URL = {settings.DATABASE_URL}")
+
+# Convert postgresql:// to postgresql+psycopg:// to use psycopg driver
+database_url = settings.DATABASE_URL
+if database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+    print(f"DEBUG: Converted DATABASE_URL = {database_url}")
+else:
+    print(f"DEBUG: DATABASE_URL already uses psycopg driver")
+
 print(f"DEBUG: Using psycopg driver for PostgreSQL")
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    database_url,
     echo=settings.DEBUG,
     pool_pre_ping=True,
     connect_args={"sslmode": "require"}
