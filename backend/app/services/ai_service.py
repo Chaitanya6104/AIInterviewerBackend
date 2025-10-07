@@ -576,7 +576,9 @@ class AIService:
             - Professional Experience: {avg_experience:.1f}/100
             - Overall Average: {overall_average:.1f}/100
             
-            Based on this comprehensive analysis, provide detailed evaluation in valid JSON format:
+            Based on this comprehensive analysis, provide detailed evaluation in valid JSON format. 
+            IMPORTANT: You MUST return ONLY valid JSON with the exact field names specified below. 
+            Do not include any text before or after the JSON. All scores must be numbers (0-100).
             {{
                 "overall_score": {overall_average:.1f},
                 "communication_score": {avg_communication:.1f},
