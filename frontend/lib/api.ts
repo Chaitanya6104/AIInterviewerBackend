@@ -55,7 +55,7 @@ export const authAPI = {
 // Candidates API
 export const candidatesAPI = {
   getCandidates: (skip = 0, limit = 100) =>
-    api.get(`/api/candidates?skip=${skip}&limit=${limit}`),
+    api.get(`/api/candidates/?skip=${skip}&limit=${limit}`),
   
   getCandidate: (id: number) => api.get(`/api/candidates/${id}`),
   
@@ -67,7 +67,7 @@ export const candidatesAPI = {
     current_company?: string;
     experience_years?: number;
     skills?: string[];
-  }) => api.post('/api/candidates', data),
+  }) => api.post('/api/candidates/', data),
   
   updateCandidate: (id: number, data: any) => api.put(`/api/candidates/${id}`, data),
   
@@ -87,7 +87,7 @@ export const interviewsAPI = {
   getInterviews: (skip = 0, limit = 100, status?: string) => {
     const params = new URLSearchParams({ skip: skip.toString(), limit: limit.toString() })
     if (status) params.append('status', status)
-    return api.get(`/api/interviews?${params}`)
+    return api.get(`/api/interviews/?${params}`)
   },
   
   getInterview: (id: number) => api.get(`/api/interviews/${id}`),
@@ -101,7 +101,7 @@ export const interviewsAPI = {
     difficulty_level?: string;
     question_count?: number;
     role_focus?: string;
-  }) => api.post('/api/interviews', data),
+  }) => api.post('/api/interviews/', data),
   
   startInterview: (id: number) => api.post(`/api/interviews/${id}/start`),
   
