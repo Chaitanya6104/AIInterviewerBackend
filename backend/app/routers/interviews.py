@@ -356,12 +356,9 @@ async def get_interview_report(
             communication_score = interview_breakdown.get('communication', 0)
             problem_solving_score = interview_breakdown.get('problem_solving', 0)
             cultural_fit_score = interview_breakdown.get('cultural_fit', 0)
-            # Also use the detailed_breakdown if available
-            if 'detailed_breakdown' in interview_breakdown:
-                scores_breakdown = interview_breakdown.get('detailed_breakdown', {})
-            else:
-                scores_breakdown = interview_breakdown
-            print(f"   - Retrieved scores from interview: tech={technical_score}, comm={communication_score}")
+            # Use the interview_breakdown directly (it contains both simple scores and detailed_breakdown)
+            scores_breakdown = interview_breakdown
+            print(f"   - Retrieved scores from interview: tech={technical_score}, comm={communication_score}, breakdown={scores_breakdown}")
     else:
         # Fallback to interview scores_breakdown
         scores_breakdown = interview.scores_breakdown or {}
