@@ -3,8 +3,9 @@ Configuration settings for the AI Interviewer application
 """
 
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Union
 import os
+import json
 
 
 class Settings(BaseSettings):
@@ -34,7 +35,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    ALLOWED_ORIGINS: List[str] = [
+    ALLOWED_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3000",
@@ -42,6 +43,12 @@ class Settings(BaseSettings):
         "https://ai-interviewer-frontend.onrender.com",
         "https://your-frontend-url.onrender.com"
     ]
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Handle ALLOWED_ORIGINS as comma-separated string
+        if isinstance(self.ALLOWED_ORIGINS, str):
+            self.ALLOWED_ORIGINS = [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
     
     # File Storage
     UPLOAD_DIR: str = "uploads"
