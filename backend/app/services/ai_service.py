@@ -324,36 +324,50 @@ class AIService:
                     # Get AI analysis from response, or generate it if missing
                     ai_analysis = response.ai_analysis or {}
                     
-                    # If no AI analysis exists, generate it now
+                    # If no AI analysis exists, generate it now (but only if we have substantial content)
                     if not ai_analysis or not ai_analysis.get('overall_score'):
-                        print(f"🔄 Generating missing analysis for response {response.id}")
-                        try:
-                            ai_analysis = await self.analyze_response(
-                                interview_id, 
-                                response.text_response, 
-                                question.content, 
-                                interview.role_focus
-                            )
-                            
-                            # Update the response with the new analysis
-                            response.ai_analysis = ai_analysis
-                            response.score = ai_analysis.get('overall_score', 5)
-                            response.feedback = ai_analysis.get('feedback', '')
-                            db.commit()
-                            print(f"✅ Generated and stored analysis for response {response.id}")
-                            
-                        except Exception as e:
-                            print(f"❌ Failed to generate analysis for response {response.id}: {e}")
-                            # Use default analysis if generation fails
+                        if response.text_response and len(response.text_response.strip()) > 10:
+                            print(f"🔄 Generating missing analysis for response {response.id}")
+                            try:
+                                ai_analysis = await self.analyze_response(
+                                    interview_id, 
+                                    response.text_response, 
+                                    question.content, 
+                                    interview.role_focus
+                                )
+                                
+                                # Update the response with the new analysis
+                                response.ai_analysis = ai_analysis
+                                response.score = ai_analysis.get('overall_score', 5)
+                                response.feedback = ai_analysis.get('feedback', '')
+                                db.commit()
+                                print(f"✅ Generated and stored analysis for response {response.id}")
+                                
+                            except Exception as e:
+                                print(f"❌ Failed to generate analysis for response {response.id}: {e}")
+                                # Use default analysis if generation fails
+                                ai_analysis = {
+                                    'technical_accuracy': 5.0,
+                                    'communication_clarity': 5.0,
+                                    'depth_of_knowledge': 5.0,
+                                    'problem_solving_approach': 5.0,
+                                    'relevance_to_question': 5.0,
+                                    'professional_experience': 5.0,
+                                    'overall_score': 5.0,
+                                    'feedback': 'Analysis pending'
+                                }
+                        else:
+                            print(f"⚠️ Skipping analysis for response {response.id} - insufficient content")
+                            # Use default analysis for short responses
                             ai_analysis = {
-                                'technical_accuracy': 5.0,
-                                'communication_clarity': 5.0,
-                                'depth_of_knowledge': 5.0,
-                                'problem_solving_approach': 5.0,
-                                'relevance_to_question': 5.0,
-                                'professional_experience': 5.0,
-                                'overall_score': 5.0,
-                                'feedback': 'Analysis pending'
+                                'technical_accuracy': 4.0,
+                                'communication_clarity': 4.0,
+                                'depth_of_knowledge': 4.0,
+                                'problem_solving_approach': 4.0,
+                                'relevance_to_question': 4.0,
+                                'professional_experience': 4.0,
+                                'overall_score': 4.0,
+                                'feedback': 'Short response - limited analysis possible'
                             }
                     
                     conversation_context += f"Question {i+1}: {question.content}\n"
@@ -366,13 +380,23 @@ class AIService:
                     conversation_context += f"Overall Score: {ai_analysis.get('overall_score', 0)}/10\n"
                     conversation_context += f"Feedback: {ai_analysis.get('feedback', 'No feedback')}\n\n"
                     
-                    # Accumulate scores for averaging
-                    if ai_analysis and ai_analysis.get('overall_score', 0) > 0:
-                        total_technical_score += ai_analysis.get('technical_accuracy', 0)
-                        total_communication_score += ai_analysis.get('communication_clarity', 0)
-                        total_problem_solving_score += ai_analysis.get('problem_solving_approach', 0)
-                        total_relevance_score += ai_analysis.get('relevance_to_question', 0)
-                        total_experience_score += ai_analysis.get('professional_experience', 0)
+                    # Accumulate scores for averaging - include all responses with analysis
+                    if ai_analysis:
+                        technical_score = ai_analysis.get('technical_accuracy', 0)
+                        communication_score = ai_analysis.get('communication_clarity', 0)
+                        problem_solving_score = ai_analysis.get('problem_solving_approach', 0)
+                        relevance_score = ai_analysis.get('relevance_to_question', 0)
+                        experience_score = ai_analysis.get('professional_experience', 0)
+                        overall_score = ai_analysis.get('overall_score', 0)
+                        
+                        print(f"   📊 Response {i+1} scores: Technical={technical_score}, Communication={communication_score}, Problem Solving={problem_solving_score}, Relevance={relevance_score}, Experience={experience_score}, Overall={overall_score}")
+                        
+                        # Always accumulate scores, even if they are 0 (they might be legitimate 0 scores)
+                        total_technical_score += technical_score
+                        total_communication_score += communication_score
+                        total_problem_solving_score += problem_solving_score
+                        total_relevance_score += relevance_score
+                        total_experience_score += experience_score
                         response_count += 1
                         
                         detailed_scores.append({
@@ -382,12 +406,17 @@ class AIService:
                         })
             
             # Calculate average scores (convert from 0-10 to 0-100 scale)
+            print(f"📊 Score calculation: response_count={response_count}")
+            print(f"📊 Total scores: technical={total_technical_score}, communication={total_communication_score}, problem_solving={total_problem_solving_score}, relevance={total_relevance_score}, experience={total_experience_score}")
+            
             avg_technical = ((total_technical_score / response_count) * 10) if response_count > 0 else 0
             avg_communication = ((total_communication_score / response_count) * 10) if response_count > 0 else 0
             avg_problem_solving = ((total_problem_solving_score / response_count) * 10) if response_count > 0 else 0
             avg_relevance = ((total_relevance_score / response_count) * 10) if response_count > 0 else 0
             avg_experience = ((total_experience_score / response_count) * 10) if response_count > 0 else 0
             overall_average = (avg_technical + avg_communication + avg_problem_solving + avg_relevance + avg_experience) / 5
+            
+            print(f"📊 Calculated averages: technical={avg_technical:.1f}, communication={avg_communication:.1f}, problem_solving={avg_problem_solving:.1f}, relevance={avg_relevance:.1f}, experience={avg_experience:.1f}, overall={overall_average:.1f}")
             
             # If no responses were analyzed, try to generate scores from existing responses
             if response_count == 0 and len(responses) > 0:
@@ -400,7 +429,7 @@ class AIService:
                 total_cultural_fit = 0
                 total_relevance = 0
                 total_experience = 0
-                response_count = 0
+                fallback_response_count = 0
                 
                 for response in responses:
                     if response.text_response:
@@ -448,15 +477,15 @@ class AIService:
                         total_cultural_fit += cultural_fit_score
                         total_relevance += relevance_score
                         total_experience += experience_score
-                        response_count += 1
+                        fallback_response_count += 1
                 
-                if response_count > 0:
-                    avg_technical = (total_technical / response_count) * 10  # Convert to 0-100 scale
-                    avg_communication = (total_communication / response_count) * 10  # Convert to 0-100 scale
-                    avg_problem_solving = (total_problem_solving / response_count) * 10  # Convert to 0-100 scale
-                    avg_cultural_fit = (total_cultural_fit / response_count) * 10  # Convert to 0-100 scale
-                    avg_relevance = (total_relevance / response_count) * 10  # Convert to 0-100 scale
-                    avg_experience = (total_experience / response_count) * 10  # Convert to 0-100 scale
+                if fallback_response_count > 0:
+                    avg_technical = (total_technical / fallback_response_count) * 10  # Convert to 0-100 scale
+                    avg_communication = (total_communication / fallback_response_count) * 10  # Convert to 0-100 scale
+                    avg_problem_solving = (total_problem_solving / fallback_response_count) * 10  # Convert to 0-100 scale
+                    avg_cultural_fit = (total_cultural_fit / fallback_response_count) * 10  # Convert to 0-100 scale
+                    avg_relevance = (total_relevance / fallback_response_count) * 10  # Convert to 0-100 scale
+                    avg_experience = (total_experience / fallback_response_count) * 10  # Convert to 0-100 scale
                     overall_average = (avg_technical + avg_communication + avg_problem_solving + avg_cultural_fit + avg_relevance + avg_experience) / 6
                     
                     # Update the analysis variables
@@ -465,7 +494,7 @@ class AIService:
                     total_problem_solving_score = total_problem_solving
                     total_relevance_score = total_relevance
                     total_experience_score = total_experience
-                    response_count = response_count
+                    response_count = fallback_response_count
                     
                     print(f"✅ Generated basic scores: Technical={avg_technical:.1f}, Communication={avg_communication:.1f}, Problem Solving={avg_problem_solving:.1f}, Cultural Fit={avg_cultural_fit:.1f}, Relevance={avg_relevance:.1f}, Experience={avg_experience:.1f}")
             
@@ -498,6 +527,17 @@ class AIService:
                     },
                     "generated_at": "2024-01-01T00:00:00Z"
                 }
+            
+            # Ensure we have minimum scores even if they are very low
+            if avg_technical == 0 and avg_communication == 0 and avg_problem_solving == 0:
+                print(f"⚠️ All scores are 0, applying minimum baseline scores")
+                avg_technical = max(avg_technical, 30.0)  # Minimum 30% for any response
+                avg_communication = max(avg_communication, 30.0)
+                avg_problem_solving = max(avg_problem_solving, 30.0)
+                avg_relevance = max(avg_relevance, 30.0)
+                avg_experience = max(avg_experience, 30.0)
+                overall_average = (avg_technical + avg_communication + avg_problem_solving + avg_relevance + avg_experience) / 5
+                print(f"📊 Applied baseline scores: technical={avg_technical:.1f}, communication={avg_communication:.1f}, problem_solving={avg_problem_solving:.1f}, relevance={avg_relevance:.1f}, experience={avg_experience:.1f}, overall={overall_average:.1f}")
             
             # Get candidate background for context
             candidate_background = ""
