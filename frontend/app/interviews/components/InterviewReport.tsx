@@ -7,8 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { ArrowLeft, Download, FileText, Brain, Target, Clock, TrendingUp, Star, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useParams } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useInterview, useInterviewReport, useGenerateFeedback, useScoreInterview, useExportPDF, useRegenerateAnalysis, useCreateScores } from '@/lib/hooks'
 import { aiAPI } from '@/lib/api'
 import { safeRender, safeDateFormat, safeNumberFormat } from '@/lib/utils'
@@ -18,11 +17,24 @@ export default function InterviewReportPage() {
   const [generatingReport, setGeneratingReport] = useState(false)
   
   const router = useRouter()
-  const params = useParams()
-  const interviewId = params?.id as string
+  const pathname = usePathname()
   
-  const { data: interview, isLoading } = useInterview(parseInt(interviewId))
-  const { data: report, isLoading: reportLoading } = useInterviewReport(parseInt(interviewId))
+  // Extract interview ID from URL path
+  const getInterviewId = () => {
+    if (pathname) {
+      const pathParts = pathname.split('/')
+      const interviewsIndex = pathParts.indexOf('interviews')
+      if (interviewsIndex !== -1 && pathParts[interviewsIndex + 1]) {
+        return pathParts[interviewsIndex + 1]
+      }
+    }
+    return null
+  }
+  
+  const interviewId = getInterviewId()
+  
+  const { data: interview, isLoading } = useInterview(interviewId ? parseInt(interviewId) : 0)
+  const { data: report, isLoading: reportLoading } = useInterviewReport(interviewId ? parseInt(interviewId) : 0)
   
   // Debug: Log report data
   useEffect(() => {

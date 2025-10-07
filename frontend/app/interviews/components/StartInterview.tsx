@@ -7,8 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { ArrowLeft, Mic, MicOff, MessageSquare, Brain, Clock, Play, Pause, Square, Send, Settings } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useParams } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useInterview, useStartInterview, useAnalyzeResponse, useTranscribeAudio, useQuestionBank, useCompleteInterview, useStoreResponse, useStoreQuestions } from '@/lib/hooks'
 import { safeRender, safeDateFormat } from '@/lib/utils'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -46,10 +45,23 @@ export default function StartInterviewPage() {
   const [responseStartTime, setResponseStartTime] = useState<number | null>(null)
   
   const router = useRouter()
-  const params = useParams()
-  const interviewId = params?.id as string
+  const pathname = usePathname()
   
-  const { data: interview, isLoading: interviewLoading } = useInterview(parseInt(interviewId))
+  // Extract interview ID from URL path
+  const getInterviewId = () => {
+    if (pathname) {
+      const pathParts = pathname.split('/')
+      const interviewsIndex = pathParts.indexOf('interviews')
+      if (interviewsIndex !== -1 && pathParts[interviewsIndex + 1]) {
+        return pathParts[interviewsIndex + 1]
+      }
+    }
+    return null
+  }
+  
+  const interviewId = getInterviewId()
+  
+  const { data: interview, isLoading: interviewLoading } = useInterview(interviewId ? parseInt(interviewId) : 0)
   
   const startInterviewMutation = useStartInterview()
   const analyzeResponseMutation = useAnalyzeResponse()
